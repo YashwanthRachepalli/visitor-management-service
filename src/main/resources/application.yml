@@ -1,0 +1,13 @@
+spring:
+    application:
+        name: visitor-management-service
+
+kafka:
+    bootstrap-servers: localhost:9092
+
+server:
+    port: 9002
+
+topics:
+    visitEventsTopic: "VISIT_EVENT_TOPIC_DEV"
+
