@@ -68,6 +68,7 @@ public class VisitRequestControllerTest {
     @Test
     public void testGetStatus() {
         KafkaStreamsProperties properties = new KafkaStreamsProperties();
+        JsonNodeSerdes jsonNodeSerdes = new JsonNodeSerdes();
         ReflectionTestUtils.setField(properties, "visitEventsTopic", "input-topic");
         VisitRequestTopology visitRequestTopology = new VisitRequestTopology(properties);
         StreamsBuilder streamsBuilder = new StreamsBuilder();
