@@ -74,7 +74,7 @@ public class VisitRequestTopologyTest {
         inputTopic.pipeInput(requestId, mapper.convertValue(visitEvent1, JsonNode.class));
 
         KeyValueStore<String, String> visitEventStream = topologyTestDriver
-                .getKeyValueStore("visit-info");
+                .getKeyValueStore("visit-info-latest");
         MatcherAssert.assertThat(visitEventStream.get(requestId), equalTo(RequestStatus.CANCELLED.name()));
     }
 }

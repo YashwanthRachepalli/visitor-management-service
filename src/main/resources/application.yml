@@ -9,5 +9,5 @@ server:
     port: 9002
 
 topics:
-    visitEventsTopic: "VISIT_EVENT_TOPIC_DEV"
+    visitEventsTopic: "VISIT_EVENT_TOPIC_TEST"
 

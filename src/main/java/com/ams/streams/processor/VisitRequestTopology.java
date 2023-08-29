@@ -47,7 +47,7 @@ public class VisitRequestTopology {
                     }
                 })
                 .groupByKey(Grouped.with(STRING_SERDE, STRING_SERDE))
-                .reduce((requestStatus, v1) -> v1, Materialized.as("visit-info"));
+                .reduce((requestStatus, v1) -> v1, Materialized.as("visit-info-latest"));
     }
 
 

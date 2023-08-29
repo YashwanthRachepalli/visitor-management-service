@@ -1,23 +1,23 @@
 package com.ams.streams.controller;
 
-import com.ams.streams.event.VisitEvent;
-import com.ams.streams.model.RequestStatus;
 import com.ams.streams.model.VisitRequest;
 import com.ams.streams.model.VisitRequestStatus;
-import com.ams.streams.properties.KafkaStreamsProperties;
 import com.ams.streams.service.VisitRequestService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.streams.KafkaStreams;
+import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StoreQueryParameters;
+import org.apache.kafka.streams.state.KeyValueIterator;
 import org.apache.kafka.streams.state.QueryableStoreTypes;
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.config.StreamsBuilderFactoryBean;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @Slf4j
@@ -41,7 +41,7 @@ public class VisitRequestController {
 
         KafkaStreams kafkaStreams = factoryBean.getKafkaStreams();
         ReadOnlyKeyValueStore<String, String> store = kafkaStreams.store(
-                StoreQueryParameters.fromNameAndType("visit-info", QueryableStoreTypes.keyValueStore())
+                StoreQueryParameters.fromNameAndType("visit-info-latest", QueryableStoreTypes.keyValueStore())
         );
 
         if (ObjectUtils.isEmpty(store.get(requestId))) {
@@ -53,5 +53,21 @@ public class VisitRequestController {
                 .requestId(requestId)
                 .requestStatus(store.get(requestId))
                 .build());
+    }
+
+    @GetMapping
+    public ResponseEntity<List<VisitRequestStatus>> getAllVisitRequests() {
+        KafkaStreams kafkaStreams = factoryBean.getKafkaStreams();
+        ReadOnlyKeyValueStore<String, String> store = kafkaStreams.store(
+                StoreQueryParameters.fromNameAndType("visit-info-latest", QueryableStoreTypes.keyValueStore())
+        );
+        List<VisitRequestStatus> visitRequestStatuses = new ArrayList<>();
+        store.all().forEachRemaining(currKeyValue -> visitRequestStatuses
+                .add(VisitRequestStatus.builder()
+                        .requestStatus(currKeyValue.value)
+                        .requestId(currKeyValue.key)
+                        .build()));
+
+        return ResponseEntity.ok(visitRequestStatuses);
     }
 }

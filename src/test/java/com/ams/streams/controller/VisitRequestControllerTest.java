@@ -2,6 +2,7 @@ package com.ams.streams.controller;
 
 import static org.apache.kafka.streams.StreamsConfig.*;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -21,6 +22,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.kafka.streams.*;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -101,7 +103,7 @@ public class VisitRequestControllerTest {
                 .build();
         inputTopic.pipeInput(requestId, mapper.convertValue(visitEvent1, JsonNode.class));
 
-        KeyValueStore<String, String> visitEventStream = topologyTestDriver.getKeyValueStore("visit-info");
+        KeyValueStore<String, String> visitEventStream = topologyTestDriver.getKeyValueStore("visit-info-latest");
         KafkaStreams kafkaStreams = mock(KafkaStreams.class);
         when(factoryBean.getKafkaStreams()).thenReturn(kafkaStreams);
         when(kafkaStreams.store(any())).thenReturn(visitEventStream);
@@ -111,6 +113,9 @@ public class VisitRequestControllerTest {
 
         MatcherAssert.assertThat(visitRequestController.getStatus("testId").getStatusCode(),
                 equalTo(HttpStatus.BAD_REQUEST));
+
+        MatcherAssert.assertThat(visitRequestController.getAllVisitRequests().getBody().size(),
+                greaterThan(0));
 
     }
 

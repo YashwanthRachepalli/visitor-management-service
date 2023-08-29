@@ -33,6 +33,4 @@ public class VisitRequest {
         return status;
     }
 
-
-
 }
